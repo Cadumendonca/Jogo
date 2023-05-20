@@ -149,14 +149,17 @@ function update() {
 function handleKeyPress(event) {
   const key = event.key;
 
+  let nextPlayerX = playerX;
+  let nextPlayerY = playerY;
+
   if (key === "ArrowUp") {
-    playerY -= 10;
+    nextPlayerY -= 10;
   } else if (key === "ArrowDown") {
-    playerY += 10;
+    nextPlayerY += 10;
   } else if (key === "ArrowLeft") {
-    playerX -= 10;
+    nextPlayerX -= 10;
   } else if (key === "ArrowRight") {
-    playerX += 10;
+    nextPlayerX += 10;
   } else if (key === " ") {
     // Tecla Space representa o ataque do jogador
 
@@ -176,6 +179,44 @@ function handleKeyPress(event) {
         resetGame();
       }
     }
+  }
+
+  // Verificar se a próxima posição do jogador colide com o terreno
+  const nextPlayerRect = {
+    x: nextPlayerX,
+    y: nextPlayerY,
+    width: 50,
+    height: 50,
+  };
+
+  let collision = false;
+  for (let row = 0; row < map.length; row++) {
+    for (let col = 0; col < map[row].length; col++) {
+      const tile = map[row][col];
+      if (tile === 1) {
+        const tileRect = {
+          x: col * blockSize,
+          y: row * blockSize,
+          width: blockSize,
+          height: blockSize,
+        };
+
+        if (checkCollision(nextPlayerRect, tileRect)) {
+          collision = true;
+          break;
+        }
+      }
+    }
+
+    if (collision) {
+      break;
+    }
+  }
+
+  // Atualizar posição do jogador se não houver colisão com o terreno
+  if (!collision) {
+    playerX = nextPlayerX;
+    playerY = nextPlayerY;
   }
 }
 
