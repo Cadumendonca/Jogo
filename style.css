@@ -1,3 +1,19 @@
+body {
+  background-color: #000;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  color: #fff;
+  text-align: center;
+  font-family: "Press Start 2P", Arial, sans-serif;
+  margin-top: 30px;
+}
+
 #gameCanvas {
-  border: 1px solid black;
+  display: block;
+  margin: 0 auto;
+  border: 4px solid #fff;
+  background-color: #222;
 }
