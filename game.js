@@ -6,6 +6,7 @@ const context = canvas.getContext("2d");
 let playerX = 400;
 let playerY = 300;
 let playerHealth = 100;
+const playerSpeed = 5;
 
 // Função para desenhar o jogador
 function drawPlayer() {
@@ -77,6 +78,78 @@ function checkCollision(rect1, rect2) {
   return false; // Sem colisão
 }
 
+// Função para verificar colisão entre o jogador e o terreno
+function checkPlayerCollision() {
+  const playerRect = {
+    x: playerX,
+    y: playerY,
+    width: 50,
+    height: 50,
+  };
+
+  let collision = false;
+  for (let row = 0; row < map.length; row++) {
+    for (let col = 0; col < map[row].length; col++) {
+      const tile = map[row][col];
+      if (tile === 1) {
+        const tileRect = {
+          x: col * blockSize,
+          y: row * blockSize,
+          width: blockSize,
+          height: blockSize,
+        };
+
+        if (checkCollision(playerRect, tileRect)) {
+          collision = true;
+          break;
+        }
+      }
+    }
+
+    if (collision) {
+      break;
+    }
+  }
+
+  return collision;
+}
+
+// Função para verificar colisão entre o monstro e o terreno
+function checkMonsterCollision() {
+  const monsterRect = {
+    x: monster.x,
+    y: monster.y,
+    width: monster.width,
+    height: monster.height,
+  };
+
+  let collision = false;
+  for (let row = 0; row < map.length; row++) {
+    for (let col = 0; col < map[row].length; col++) {
+      const tile = map[row][col];
+      if (tile === 1) {
+        const tileRect = {
+          x: col * blockSize,
+          y: row * blockSize,
+          width: blockSize,
+          height: blockSize,
+        };
+
+        if (checkCollision(monsterRect, tileRect)) {
+          collision = true;
+          break;
+        }
+      }
+    }
+
+    if (collision) {
+      break;
+    }
+  }
+
+  return collision;
+}
+
 // Função para atualizar o estado do jogo
 function update() {
   // Limpar o canvas
@@ -127,6 +200,19 @@ function update() {
     }
   }
 
+  // Verificar colisão entre jogador e terreno
+  if (checkPlayerCollision()) {
+    // O jogador colidiu com o terreno, então pare seu movimento
+    playerX -= playerSpeed;
+    playerY -= playerSpeed;
+  }
+
+  // Verificar colisão entre monstro e terreno
+  if (checkMonsterCollision()) {
+    // O monstro colidiu com o terreno, então inverta sua direção
+    monster.speed *= -1;
+  }
+
   // Verificar se o monstro foi derrotado
   if (monster.health <= 0) {
     // O monstro foi derrotado
@@ -149,17 +235,18 @@ function update() {
 function handleKeyPress(event) {
   const key = event.key;
 
-  let nextPlayerX = playerX;
-  let nextPlayerY = playerY;
+  // Copiar a posição atual do jogador
+  let newPlayerX = playerX;
+  let newPlayerY = playerY;
 
   if (key === "ArrowUp") {
-    nextPlayerY -= 10;
+    newPlayerY -= 10;
   } else if (key === "ArrowDown") {
-    nextPlayerY += 10;
+    newPlayerY += 10;
   } else if (key === "ArrowLeft") {
-    nextPlayerX -= 10;
+    newPlayerX -= 10;
   } else if (key === "ArrowRight") {
-    nextPlayerX += 10;
+    newPlayerX += 10;
   } else if (key === " ") {
     // Tecla Space representa o ataque do jogador
 
@@ -181,10 +268,10 @@ function handleKeyPress(event) {
     }
   }
 
-  // Verificar se a próxima posição do jogador colide com o terreno
-  const nextPlayerRect = {
-    x: nextPlayerX,
-    y: nextPlayerY,
+  // Verificar colisão entre o jogador e o terreno após o movimento
+  const playerRect = {
+    x: newPlayerX,
+    y: newPlayerY,
     width: 50,
     height: 50,
   };
@@ -201,7 +288,7 @@ function handleKeyPress(event) {
           height: blockSize,
         };
 
-        if (checkCollision(nextPlayerRect, tileRect)) {
+        if (checkCollision(playerRect, tileRect)) {
           collision = true;
           break;
         }
@@ -213,10 +300,10 @@ function handleKeyPress(event) {
     }
   }
 
-  // Atualizar posição do jogador se não houver colisão com o terreno
+  // Atualizar a posição do jogador se não houver colisão
   if (!collision) {
-    playerX = nextPlayerX;
-    playerY = nextPlayerY;
+    playerX = newPlayerX;
+    playerY = newPlayerY;
   }
 }
 
